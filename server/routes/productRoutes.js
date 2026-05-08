@@ -7,7 +7,7 @@ const { protect, vendorOnly } = require('../middleware/authMiddleware');
 // Fetch all products
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find({}).populate('vendor', 'name email');
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -20,7 +20,12 @@ router.get('/', async (req, res) => {
 router.post('/', protect, vendorOnly, async (req, res) => {
   try {
     const { name, price, description } = req.body;
-    const product = new Product({ name, price, description });
+    const product = new Product({ 
+      name, 
+      price, 
+      description,
+      vendor: req.user.id
+    });
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {

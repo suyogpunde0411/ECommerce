@@ -3,12 +3,14 @@ import ProductList from './components/ProductList';
 import Cart from './components/Cart';
 import Auth from './components/Auth';
 import VendorDashboard from './components/VendorDashboard';
+import LandingPage from './components/LandingPage';
 import './index.css';
 
 function App() {
   const [user, setUser] = useState(null); // { name, email, role, token }
   const [view, setView] = useState('products'); // 'products' or 'cart'
   const [cartItems, setCartItems] = useState([]);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -18,6 +20,7 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     setCartItems([]);
+    setShowAuth(false); // Go back to landing page on logout
   };
 
   const addToCart = (product) => {
@@ -34,6 +37,8 @@ function App() {
         product: product._id, 
         name: product.name, 
         price: product.price, 
+        description: product.description,
+        vendor: product.vendor?._id || product.vendor,
         quantity: 1 
       }];
     });
@@ -59,8 +64,11 @@ function App() {
     setCartItems([]);
   };
 
-  // If not logged in, show Auth screen
+  // If not logged in, show Auth screen or Landing Page
   if (!user) {
+    if (!showAuth) {
+      return <LandingPage onGetStarted={() => setShowAuth(true)} />;
+    }
     return <Auth onLogin={handleLogin} />;
   }
 
@@ -106,6 +114,7 @@ function App() {
               setView={setView}
               updateQuantity={updateQuantity}
               removeFromCart={removeFromCart}
+              token={user.token}
             />
           )
         )}

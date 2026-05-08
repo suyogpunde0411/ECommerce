@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const { protect } = require('../middleware/authMiddleware');
 
 // POST /api/orders
 // Place a new order
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const { items, totalAmount } = req.body;
     
@@ -13,6 +14,7 @@ router.post('/', async (req, res) => {
     }
 
     const order = new Order({
+      buyer: req.user.id,
       items,
       totalAmount
     });
@@ -29,7 +31,10 @@ router.post('/', async (req, res) => {
 // Get all orders (for simple verification)
 router.get('/', async (req, res) => {
   try {
-    const orders = await Order.find({}).sort({ createdAt: -1 });
+    const orders = await Order.find({})
+      .populate('buyer', 'name email')
+      .populate('items.vendor', 'name email')
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);

@@ -8,6 +8,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors()); // Enable CORS to allow requests from our React frontend
@@ -24,18 +25,14 @@ app.get('/', (req, res) => {
 });
 
 // MongoDB Connection
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/CloudEcommerce';
+mongoose.connect(process.env.MONGO_URI)
+.then(() => {
+    console.log('Connected to MongoDB Atlas');
+    // Start server only after successful database connection, binding to 0.0.0.0 for AWS EC2
+    app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
+})
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected successfully');
-    // Start server only after successful database connection
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error.message);
-    process.exit(1); // Exit with failure
-  });

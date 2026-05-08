@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-function Cart({ cartItems, clearCart, setView, updateQuantity, removeFromCart }) {
+function Cart({ cartItems, clearCart, setView, updateQuantity, removeFromCart, token }) {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [message, setMessage] = useState(null);
 
@@ -16,7 +16,10 @@ function Cart({ cartItems, clearCart, setView, updateQuantity, removeFromCart })
       // Simulate placing an order by sending to backend
       const response = await fetch(`${API_URL}/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ items: cartItems, totalAmount })
       });
 
